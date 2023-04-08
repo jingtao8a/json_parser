@@ -5,26 +5,29 @@
 
 typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
 
-typedef struct {
+typedef struct lept_value lept_value;
+
+struct lept_value {
     union{
+        struct {lept_value* e; size_t size;} a;//数组
         struct {char *s; size_t len;} s;//字符串
         double n;//数字
     }u;
-    double n;
     lept_type type;
-}lept_value;//节点
+};//节点
 
 enum {
     LEPT_PARSE_OK = 0,
-    LEPT_PARSE_EXPECT_VALUE,//只有空白
-    LEPT_PARSE_INVALID_VALUE,
-    LEPT_PARSE_ROOT_NOT_SINGULAR,
-    LEPT_PARSE_NUMBER_TOO_BIG,
-    LEPT_PARSE_MISS_QUOTATION_MARK,
-    LEPT_PARSE_INVALID_STRING_ESCAPE,
-    LEPT_PARSE_INVALID_STRING_CHAR,
-    LEPT_PARSE_INVALID_UNICODE_HEX,
-    LEPT_PARSE_INVALID_UNICODE_SURROGATE,
+    LEPT_PARSE_EXPECT_VALUE,//没有json字符串
+    LEPT_PARSE_INVALID_VALUE,//错误的值
+    LEPT_PARSE_ROOT_NOT_SINGULAR,//没有根lept_value
+    LEPT_PARSE_NUMBER_TOO_BIG,//解析的数字太大
+    LEPT_PARSE_MISS_QUOTATION_MARK,//解析字符串时没有右双引号
+    LEPT_PARSE_INVALID_STRING_ESCAPE,//解析字符串时，错误的转义符
+    LEPT_PARSE_INVALID_STRING_CHAR,//解析字符串时错误的符号
+    LEPT_PARSE_INVALID_UNICODE_HEX,//解析UNICODE错误1
+    LEPT_PARSE_INVALID_UNICODE_SURROGATE,//解析UNICODE错误2
+    LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET,//解析数组时没有逗号和右括号封闭
 };//解析json时的返回值
 
 #define lept_init(v) do { (v)->type = LEPT_NULL; } while(0)
@@ -47,6 +50,7 @@ const char* lept_get_string(const lept_value* v);
 size_t lept_get_string_length(const lept_value* v);
 void lept_set_string(lept_value* v, const char* s, size_t len);
 
-
+size_t lept_get_array_size(const lept_value* v);
+lept_value* lept_get_array_element(const lept_value* v, size_t index);
 
 #endif
