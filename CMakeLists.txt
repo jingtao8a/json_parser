@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project("json_parser")
-add_definitions("-Wall -g")
+add_definitions("-g")
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_executable(test test/test.c src/leptjson.c)
