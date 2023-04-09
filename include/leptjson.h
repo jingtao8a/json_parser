@@ -6,15 +6,23 @@
 typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
 
 typedef struct lept_value lept_value;
+typedef struct lept_member lept_member;
+
 
 struct lept_value {
     union{
+        struct {lept_member* m; size_t size;} o;//对象
         struct {lept_value* e; size_t size;} a;//数组
         struct {char *s; size_t len;} s;//字符串
         double n;//数字
     }u;
     lept_type type;
 };//节点
+
+struct lept_member {
+    char* k; size_t klen;//member key 字符串
+    lept_value v;//member value
+};
 
 enum {
     LEPT_PARSE_OK = 0,
@@ -28,6 +36,9 @@ enum {
     LEPT_PARSE_INVALID_UNICODE_HEX,//解析UNICODE错误1
     LEPT_PARSE_INVALID_UNICODE_SURROGATE,//解析UNICODE错误2
     LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET,//解析数组时没有逗号和右括号封闭
+    LEPT_PARSE_MISS_KEY,//解析对象时没有key
+    LEPT_PARSE_MISS_COLON,//解析对象时没有冒号
+    LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET,//解析对象时没有以逗号或}结尾
 };//解析json时的返回值
 
 #define lept_init(v) do { (v)->type = LEPT_NULL; } while(0)
@@ -52,5 +63,10 @@ void lept_set_string(lept_value* v, const char* s, size_t len);
 
 size_t lept_get_array_size(const lept_value* v);
 lept_value* lept_get_array_element(const lept_value* v, size_t index);
+
+size_t lept_get_object_size(const lept_value* v);
+const char* lept_get_object_key(const lept_value* v, size_t index);
+size_t lept_get_object_key_length(const lept_value* v, size_t index);
+lept_value* lept_get_object_value(const lept_value* v, size_t index);
 
 #endif
